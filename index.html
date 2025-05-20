@@ -73,8 +73,8 @@
     .profile {
       width: 100px;
       height: 100px;
-      border-radius: 20%;
-      border: 3px solid rgba(86, 86, 82, 0);
+      border-radius: 10%;
+      border: 3px solid rgba(255, 217, 0, 0);
       object-fit: cover;
       margin-bottom: 10px;
       align-self: center;
@@ -119,27 +119,36 @@
     </div>
 
     <div class="ranking-list" id="rankingList">
-      <!-- 로딩 메시지 먼저 -->
-      <div id="loading-message">로딩 중...</div>
+      <div id="loading-message">로딩 중<span id="dot">.</span></div>
     </div>
   </div>
 
   <script>
+    let dotInterval;
+
     async function fetchRanking() {
       const list = document.getElementById("rankingList");
-      list.innerHTML = `<div id="loading-message">로딩 중...</div>`;
+      list.innerHTML = `<div id="loading-message">로딩 중<span id="dot">.</span></div>`;
+
+      const dotEl = document.getElementById("dot");
+      let dotCount = 1;
+      dotInterval = setInterval(() => {
+        dotCount = (dotCount % 3) + 1;
+        dotEl.textContent = '.'.repeat(dotCount);
+      }, 500);
 
       try {
         const res = await fetch("https://script.google.com/macros/s/AKfycbwn4fJSAr2tTR0z-ehfnHFmqNnDQVw-gQgOBSPEEtjU0-6PXkFtPZgsLyd4OjLwdeE/exec");
         const data = await res.json();
-        list.innerHTML = ""; // 로딩 메시지 제거
+
+        clearInterval(dotInterval);
+        list.innerHTML = ""; // 로딩 제거
 
         data.sort((a, b) => b["승점"] - a["승점"]);
 
         data.forEach((player, index) => {
           const card = document.createElement("div");
           card.className = "ranking-card" + (index === 0 ? " first" : "");
-
           card.style.alignItems = index === 0 ? "center" : "flex-start";
           card.style.textAlign = "left";
 
@@ -161,8 +170,8 @@
           card.innerHTML = html;
           list.appendChild(card);
         });
-
       } catch (error) {
+        clearInterval(dotInterval);
         list.innerHTML = `<div style="text-align: center; color: red;">불러오기 실패 😢</div>`;
       }
     }
