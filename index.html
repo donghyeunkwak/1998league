@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>1998리그</title>
+  <title>곽리그</title>
 
-  <!-- 폰트 -->
   <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet" />
 
   <style>
@@ -74,8 +73,8 @@
     .profile {
       width: 100px;
       height: 100px;
-      border-radius: 10%;
-      border: 3px solid rgba(248, 248, 248, 0);
+      border-radius: 20%;
+      border: 3px solid rgba(86, 86, 82, 0);
       object-fit: cover;
       margin-bottom: 10px;
       align-self: center;
@@ -102,6 +101,13 @@
       display: block;
       margin-top: 6px;
     }
+
+    #loading-message {
+      text-align: center;
+      font-size: 16px;
+      color: #aaa;
+      padding: 20px;
+    }
   </style>
 </head>
 <body>
@@ -112,46 +118,53 @@
       <div class="subtitle">2025 시즌</div>
     </div>
 
-    <div class="ranking-list">
-      <!-- JS가 자동 삽입 -->
+    <div class="ranking-list" id="rankingList">
+      <!-- 로딩 메시지 먼저 -->
+      <div id="loading-message">로딩 중...</div>
     </div>
   </div>
 
   <script>
     async function fetchRanking() {
-      const res = await fetch("https://script.google.com/macros/s/AKfycbwn4fJSAr2tTR0z-ehfnHFmqNnDQVw-gQgOBSPEEtjU0-6PXkFtPZgsLyd4OjLwdeE/exec");
-      const data = await res.json();
-      const list = document.querySelector(".ranking-list");
+      const list = document.getElementById("rankingList");
+      list.innerHTML = `<div id="loading-message">로딩 중...</div>`;
 
-      data.sort((a, b) => b["승점"] - a["승점"]);
+      try {
+        const res = await fetch("https://script.google.com/macros/s/AKfycbwn4fJSAr2tTR0z-ehfnHFmqNnDQVw-gQgOBSPEEtjU0-6PXkFtPZgsLyd4OjLwdeE/exec");
+        const data = await res.json();
+        list.innerHTML = ""; // 로딩 메시지 제거
 
-      data.forEach((player, index) => {
-        const card = document.createElement("div");
-        card.className = "ranking-card" + (index === 0 ? " first" : "");
+        data.sort((a, b) => b["승점"] - a["승점"]);
 
-        // 정렬 스타일 분기
-        card.style.alignItems = index === 0 ? "center" : "flex-start";
-        card.style.textAlign = "left";
+        data.forEach((player, index) => {
+          const card = document.createElement("div");
+          card.className = "ranking-card" + (index === 0 ? " first" : "");
 
-        let html = "";
+          card.style.alignItems = index === 0 ? "center" : "flex-start";
+          card.style.textAlign = "left";
 
-        if (index === 0) {
-          const imgURL = "a.png";
-          html += `<img src="${imgURL}" alt="profile" class="profile" />`;
-        }
+          let html = "";
+          if (index === 0) {
+            const imgURL = "a.png";
+            html += `<img src="${imgURL}" alt="profile" class="profile" />`;
+          }
 
-        html += `
-          <div class="rank">${index + 1}위</div>
-          <div class="name">${player["이름"]}</div>
-          <div class="score">
-            승: ${player["승"]} | 무: ${player["무"]} | 패: ${player["패"]}
-            <span class="big-score">🏆 승점: ${player["승점"]}</span>
-          </div>
-        `;
+          html += `
+            <div class="rank">${index + 1}위</div>
+            <div class="name">${player["이름"]}</div>
+            <div class="score">
+              승: ${player["승"]} | 무: ${player["무"]} | 패: ${player["패"]}
+              <span class="big-score">🏆 승점: ${player["승점"]}</span>
+            </div>
+          `;
 
-        card.innerHTML = html;
-        list.appendChild(card);
-      });
+          card.innerHTML = html;
+          list.appendChild(card);
+        });
+
+      } catch (error) {
+        list.innerHTML = `<div style="text-align: center; color: red;">불러오기 실패 😢</div>`;
+      }
     }
 
     window.onload = fetchRanking;
