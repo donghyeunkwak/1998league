@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1998리그</title>
+
+  <!-- 폰트 -->
+  <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Jua', sans-serif;
+      background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                  url("background.png") repeat;
+      background-size: cover;
+      color: white;
+    }
+
+    .container {
+      max-width: 360px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .top-banner {
+      text-align: center;
+      padding: 12px;
+      background: rgba(179, 177, 177, 0.712);
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .logo {
+      font-size: 24px;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      margin: 4px 0;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #333;
+    }
+
+    .ranking-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ranking-card {
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 12px;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ranking-card.first {
+      border: 2px solid gold;
+      box-shadow: 0 0 14px rgba(255, 255, 0, 0.6);
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+      padding: 20px;
+    }
+
+    .profile {
+      width: 100px;
+      height: 100px;
+      border-radius: 10%;
+      border: 3px solid rgba(248, 248, 248, 0);
+      object-fit: cover;
+      margin-bottom: 10px;
+      align-self: center;
+    }
+
+    .rank {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .name {
+      font-size: 20px;
+      margin: 6px 0;
+    }
+
+    .score {
+      font-size: 14px;
+    }
+
+    .big-score {
+      font-size: 24px;
+      font-weight: bold;
+      color: gold;
+      display: block;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-banner">
+      <div class="logo">🐅</div>
+      <div class="title">1998리그</div>
+      <div class="subtitle">2025 시즌</div>
+    </div>
+
+    <div class="ranking-list">
+      <!-- JS가 자동 삽입 -->
+    </div>
+  </div>
+
+  <script>
+    async function fetchRanking() {
+      const res = await fetch("https://script.google.com/macros/s/AKfycbwn4fJSAr2tTR0z-ehfnHFmqNnDQVw-gQgOBSPEEtjU0-6PXkFtPZgsLyd4OjLwdeE/exec");
+      const data = await res.json();
+      const list = document.querySelector(".ranking-list");
+
+      data.sort((a, b) => b["승점"] - a["승점"]);
+
+      data.forEach((player, index) => {
+        const card = document.createElement("div");
+        card.className = "ranking-card" + (index === 0 ? " first" : "");
+
+        // 정렬 스타일 분기
+        card.style.alignItems = index === 0 ? "center" : "flex-start";
+        card.style.textAlign = "left";
+
+        let html = "";
+
+        if (index === 0) {
+          const imgURL = "a.png";
+          html += `<img src="${imgURL}" alt="profile" class="profile" />`;
+        }
+
+        html += `
+          <div class="rank">${index + 1}위</div>
+          <div class="name">${player["이름"]}</div>
+          <div class="score">
+            승: ${player["승"]} | 무: ${player["무"]} | 패: ${player["패"]}
+            <span class="big-score">🏆 승점: ${player["승점"]}</span>
+          </div>
+        `;
+
+        card.innerHTML = html;
+        list.appendChild(card);
+      });
+    }
+
+    window.onload = fetchRanking;
+  </script>
+</body>
+</html>
